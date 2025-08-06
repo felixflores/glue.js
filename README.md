@@ -1,4 +1,8 @@
-# Overview
+# glue.js
+
+[![CI](https://github.com/felixflores/glue.js/actions/workflows/ci.yml/badge.svg)](https://github.com/felixflores/glue.js/actions/workflows/ci.yml)
+
+## Overview
 `glue.js` is a key-value observing library for Javascript. `glue.js` supports both
 assigned and computed properties, nested in an abitrarily deep object graph.
 
