@@ -1,9 +1,39 @@
-{ "name": "glue.js"
-, "version": "0.3.0"
-, "description": "Simple Controllers for JavaScript"
-, "dependencies":
-  {
-      "vows": ""
-    , "underscore" : ""
+{
+  "name": "glue.js",
+  "version": "0.6.0-alpha",
+  "description": "Key-value observing library for JavaScript",
+  "main": "lib/glue.js",
+  "type": "commonjs",
+  "scripts": {
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "test:watch": "vitest --watch",
+    "test:ci": "vitest run --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/felixflores/glue.js.git"
+  },
+  "keywords": [
+    "observer",
+    "kvo",
+    "key-value",
+    "observing",
+    "reactive"
+  ],
+  "author": "EdgeCase",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/felixflores/glue.js/issues"
+  },
+  "homepage": "https://github.com/felixflores/glue.js#readme",
+  "dependencies": {
+    "underscore": "^1.13.6"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^2.1.8",
+    "@vitest/ui": "^2.1.8",
+    "vitest": "^2.1.8"
   }
 }
