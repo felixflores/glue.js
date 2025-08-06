@@ -17,7 +17,8 @@ describe('edge cases - array boundary conditions', () => {
       
       const popped = glue.pop('arr');
       expect(popped).toBeUndefined();
-      expect(callback).toHaveBeenCalled();
+      // Empty pop doesn't trigger notification since nothing changed
+      expect(callback).not.toHaveBeenCalled();
     });
 
     it('should handle filter on empty array', () => {

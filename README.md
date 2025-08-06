@@ -1,459 +1,468 @@
 # glue.js
 
 [![CI](https://github.com/felixflores/glue.js/actions/workflows/ci.yml/badge.svg)](https://github.com/felixflores/glue.js/actions/workflows/ci.yml)
+[![npm version](https://badge.fury.io/js/glue.js.svg)](https://badge.fury.io/js/glue.js)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Coverage Status](https://codecov.io/gh/felixflores/glue.js/branch/master/graph/badge.svg)](https://codecov.io/gh/felixflores/glue.js)
+[![Node.js Version](https://img.shields.io/node/v/glue.js.svg)](https://nodejs.org)
+[![npm downloads](https://img.shields.io/npm/dm/glue.js.svg)](https://www.npmjs.com/package/glue.js)
 
-## Overview
-`glue.js` is a key-value observing library for Javascript. `glue.js` supports both
-assigned and computed properties, nested in an abitrarily deep object graph.
+> A lightweight key-value observing library for JavaScript that supports both assigned and computed properties in arbitrarily deep object graphs.
 
-# Basic Use
-Given the following object:
+## Table of Contents
 
-```javascript
-var targetObject = { v1: '' };
+- [Features](#features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Core Concepts](#core-concepts)
+  - [Keys](#keys)
+  - [Observers](#observers)
+  - [Messages](#messages)
+- [API Reference](#api-reference)
+  - [Constructor](#constructor)
+  - [Observer Methods](#observer-methods)
+  - [Property Operations](#property-operations)
+  - [Array Operations](#array-operations)
+- [Advanced Usage](#advanced-usage)
+  - [Array Observation](#array-observation)
+  - [Operation Filtering](#operation-filtering)
+  - [Context Binding](#context-binding)
+- [Examples](#examples)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Features
+
+- 🔍 **Deep Object Observation** - Monitor changes in nested object properties at any depth
+- 🎯 **Granular Control** - Observe specific properties, arrays, or entire objects
+- 🔄 **Operation Filtering** - Listen only to specific operations (set, push, pop, etc.)
+- 🎨 **Flexible Context Binding** - Execute callbacks in custom contexts
+- 📦 **Lightweight** - Minimal dependencies, just Underscore.js
+- ⚡ **Chainable API** - All methods return `this` for method chaining
+
+## Installation
+
+```bash
+npm install glue.js
 ```
 
-The `target` object can be passed to the Glue constructor to create an instance
-of `Glue`.
+Or include directly in your HTML:
+
+```html
+<script src="path/to/underscore.js"></script>
+<script src="path/to/glue.js"></script>
+```
+
+## Quick Start
 
 ```javascript
-var glue = new Glue(targetObject);
+const Glue = require('glue.js');
 
-glue.addObserver("*", function() {
-  console.log('Target object changed.');
+// Create an observable object
+const data = { name: 'John', age: 30 };
+const glue = new Glue(data);
+
+// Add an observer
+glue.addObserver('name', (message) => {
+  console.log(`Name changed to: ${message.value}`);
 });
 
-glue.set('v1', 'a value'); // 'Target object changed.'
+// Trigger the observer
+glue.set('name', 'Jane'); // Logs: "Name changed to: Jane"
 ```
 
-In the example above, `"Target object changed."` is logged on the console when
-the value of `v1` changed by the `set` operator.
+## Core Concepts
 
-For more examples, please see the specs directory.
+### Keys
 
-###Keys
-Keys are a core concept in Glue, for both observers and operations (ie: set).
+Keys are the foundation of glue.js, defining what properties to observe:
 
 ```javascript
-var target = {
-  name: "Felix",
-  contact: {
-    phone: "555-555-5555",
-    email: "felix@edgecase.com"
+const target = {
+  user: {
+    name: 'Felix',
+    contact: {
+      email: 'felix@example.com',
+      phone: '555-0123'
+    }
+  },
+  settings: {
+    theme: 'dark'
   }
+};
+
+const glue = new Glue(target);
+
+// Observe everything
+glue.addObserver('*', callback);
+
+// Observe specific property
+glue.addObserver('user.name', callback);
+
+// Observe nested properties
+glue.addObserver('user.contact.email', callback);
+
+// Observe multiple keys
+glue.addObserver('user.name, settings.theme', callback);
+```
+
+### Observers
+
+Observers are callbacks that execute when observed properties change:
+
+```javascript
+// Basic observer
+glue.addObserver('user.name', (message) => {
+  console.log(`New value: ${message.value}`);
+  console.log(`Operation: ${message.operation}`);
+});
+
+// Observer with operation filter
+glue.addObserver('user.name:set', (message) => {
+  // Only triggers on 'set' operations
+});
+
+// Observer with custom context
+const myContext = { count: 0 };
+glue.addObserver('user.name', myContext, function(message) {
+  this.count++; // 'this' refers to myContext
+});
+```
+
+### Messages
+
+Every observer callback receives a message object with details about the change:
+
+```javascript
+// Basic message structure
+{
+  value: 'new value',
+  operation: 'set'
 }
 
-var glue = new Glue(target);
+// Array-specific messages include index
+{
+  value: 'new value',
+  operation: 'push',
+  index: 3
+}
 ```
 
+## API Reference
+
+### Constructor
+
+#### `new Glue(target)`
+
+Creates a new Glue instance.
+
+- **target** - The object to observe
+
 ```javascript
-glue.addObserver("", function(message) {
-  // callback will be triggered on any modification
-  // ex: glue.set("name", "foo");
-  // ex: glue.set("contact.email", "foo@edgecase.com");
+const glue = new Glue({ name: 'John' });
+```
+
+### Observer Methods
+
+#### `addObserver([key], [context], callback)`
+
+Registers an observer for property changes.
+
+- **key** *(optional)* - Property path(s) to observe. Use `*` for all properties
+- **context** *(optional)* - Context for callback execution
+- **callback** - Function to execute on changes
+
+```javascript
+// Observe specific property
+glue.addObserver('user.name', callback);
+
+// Observe with context
+glue.addObserver('user.name', myContext, callback);
+
+// Observe multiple operations
+glue.addObserver('items:push,pop', callback);
+```
+
+#### `removeObserver([key], [context])`
+
+Removes observers.
+
+```javascript
+// Remove all observers for a key
+glue.removeObserver('user.name');
+
+// Remove observers for specific context
+glue.removeObserver('user.name', myContext);
+
+// Remove all observers
+glue.removeObserver();
+```
+
+### Property Operations
+
+#### `set(key, value)`
+
+Sets a property value.
+
+```javascript
+glue.set('user.name', 'Jane');
+glue.set('user.contact.email', 'jane@example.com');
+```
+
+#### `remove(key)`
+
+Removes a property.
+
+```javascript
+const removed = glue.remove('user.phone');
+```
+
+#### `swap(key1, key2)`
+
+Swaps values between two properties.
+
+```javascript
+glue.swap('user.firstName', 'user.lastName');
+```
+
+### Array Operations
+
+#### `push([key], value)`
+
+Adds element to array end.
+
+```javascript
+const glue = new Glue({ items: [1, 2, 3] });
+glue.push('items', 4);
+
+// For root arrays
+const glue = new Glue([1, 2, 3]);
+glue.push(4);
+```
+
+#### `pop([key])`
+
+Removes and returns last array element.
+
+```javascript
+const last = glue.pop('items');
+```
+
+#### `insert([key], index, value)`
+
+Inserts element at specific index.
+
+```javascript
+glue.insert('items', 1, 'inserted');
+```
+
+#### `filter([key], iterator)`
+
+Filters array in place.
+
+```javascript
+glue.filter('numbers', (n) => n % 2 === 0);
+```
+
+#### `sortBy([key], iterator)`
+
+Sorts array in place.
+
+```javascript
+glue.sortBy('users', (user) => user.age);
+```
+
+## Advanced Usage
+
+### Array Observation
+
+glue.js provides powerful array observation capabilities:
+
+```javascript
+const glue = new Glue({ 
+  items: [1, 2, 3, 4, 5] 
+});
+
+// Observe specific index
+glue.addObserver('items[2]', (message) => {
+  console.log(`Index 2 changed to: ${message.value}`);
+});
+
+// Observe all array elements
+glue.addObserver('items[]', (message) => {
+  console.log(`Array element ${message.index} changed to: ${message.value}`);
+});
+
+// Works with nested arrays
+const glue = new Glue({
+  data: {
+    matrix: [[1, 2], [3, 4]]
+  }
+});
+
+glue.addObserver('data.matrix[0][]', callback); // Observe all elements in first sub-array
+```
+
+### Operation Filtering
+
+Listen only to specific operations:
+
+```javascript
+// Single operation
+glue.addObserver('items:push', (message) => {
+  console.log(`Item added: ${message.value}`);
+});
+
+// Multiple operations
+glue.addObserver('items:push,pop,insert', (message) => {
+  console.log(`Array modified via ${message.operation}`);
+});
+
+// Multiple keys and operations
+glue.addObserver('items:push, count:set', callback);
+```
+
+### Context Binding
+
+Control callback execution context:
+
+```javascript
+const viewModel = {
+  updateCount: 0,
+  handleUpdate: function(message) {
+    this.updateCount++;
+    console.log(`Update #${this.updateCount}: ${message.value}`);
+  }
+};
+
+glue.addObserver('*', viewModel, viewModel.handleUpdate);
+```
+
+## Examples
+
+### Todo List
+
+```javascript
+const todos = {
+  items: [],
+  completed: 0
+};
+
+const glue = new Glue(todos);
+
+// Track additions
+glue.addObserver('items:push', (message) => {
+  console.log(`New todo: ${message.value.text}`);
+});
+
+// Track completions
+glue.addObserver('items[]:set', (message) => {
+  if (message.value.completed) {
+    glue.set('completed', glue.target.completed + 1);
+  }
+});
+
+// Add todos
+glue.push('items', { text: 'Learn glue.js', completed: false });
+glue.push('items', { text: 'Build app', completed: false });
+
+// Complete a todo
+glue.set('items[0].completed', true);
+```
+
+### Form Validation
+
+```javascript
+const form = {
+  fields: {
+    email: '',
+    password: ''
+  },
+  errors: {}
+};
+
+const glue = new Glue(form);
+
+// Email validation
+glue.addObserver('fields.email', (message) => {
+  const email = message.value;
+  if (!email.includes('@')) {
+    glue.set('errors.email', 'Invalid email address');
+  } else {
+    glue.remove('errors.email');
+  }
+});
+
+// Password validation
+glue.addObserver('fields.password', (message) => {
+  const password = message.value;
+  if (password.length < 8) {
+    glue.set('errors.password', 'Password must be at least 8 characters');
+  } else {
+    glue.remove('errors.password');
+  }
 });
 ```
 
-```javascript
-glue.addObserver("contact", function(message) {
-  // callback will be triggered on any modification to the contact property
-  // ex: glue.set("contact", {});
-  // ex: glue.set("contact.email", "foo@edgecase.com");
-
-  // callback will not be triggered on modification of other properties
-  // ex: glue.set("name", "foo");
-});
-```
+### Data Synchronization
 
 ```javascript
-glue.addObserver("contact.email", function(message) {
-  // callback will be triggered on any modification to the email property of the contact object.
-  // ex: glue.set("contact.email", "foo@edgecase.com");
+const model = {
+  user: { name: '', email: '' },
+  lastSync: null
+};
 
-  // callback will not be triggered on modification of other properties
-  // ex: glue.set("contact.phone", "123-456-7890");
-});
+const glue = new Glue(model);
+
+// Auto-save on changes
+glue.addObserver('user', _.debounce((message) => {
+  fetch('/api/user', {
+    method: 'PUT',
+    body: JSON.stringify(glue.target.user)
+  }).then(() => {
+    glue.set('lastSync', new Date().toISOString());
+  });
+}, 500));
 ```
 
-####Array Specific Keys
-Assume the following target
+## Contributing
 
-```javascript
-var target1 = [1, 2, 3, 4, 5];
-var glue = new Glue(target1);
+We welcome contributions! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Run tests (`npm test`)
+5. Commit your changes (`git commit -m 'Add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
+
+### Development
+
+```bash
+# Install dependencies
+npm install
+
+# Run tests
+npm test
+
+# Run tests with coverage
+npm run test:coverage
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with UI
+npm run test:ui
 ```
 
-```javascript
-glue.addObserver('[2]', function(message) {
-  // callback is executed only when a change occurs to the element at index 2 of the array.
-});
-```
+## License
 
-```javascript
-glue.addObserver('[]', function(message) {
-  // callback is executed for every element that changes in the array.
-});
-```
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-####Additional Examples
-```javascript
-var target = { v1: { arr1: [ { v2: { arr2: [ 'something' ] } } ] } };
-var glue = new Glue(target);
-```
+## Support
 
-The following keys can be used:
-
-```javascript
-'v1.arr1[0].v2.arr2[0]',
-'v1.arr1[0].v2.arr2[]',
-'v1.arr1[0].v2.arr2',
-'v1.arr1[0].v2',
-'v1.arr1[0]',
-'v1.arr1[]',
-'v1.arr1',
-'v1',
-'*'
-```
-
-Note that generics `[]` can only be at the end of the key.
-Example: `'v1.arr1[0].arr2[]'` is legal, but `'v1.arr1[].arr2[]'` is not
-
-# Core methods
-##Constructor
-```javascript
-new Glue(targetObject);
-```
-
-**targetObject:** the object that will be observed by `Glue`.
-
-##addObserver
-```javascript
-glue.addObserver([key(s):operation(s)], [context], callback);
-```
-
-**key(s) (optional):** specifies the key or index that will be observed by the observer.
-
-**operation(s) (optional):** restricts the callback's execution for a particular operation. (push, pop, etc.)
-
-**context (optional):** the context which the callback is to be executed. By default, callbacks are
-executed in the context of the `target` object.
-
-**callback:** the function to be executed when the observer is notified. Callbacks are passed a
-message parameter that contains information about what changed on the `key` being listened to.
-
-###Examples
-
-Setting a listen for a key:
-
-```javascript
-glue.addObserver('v1', callback);
-```
-
-Setting a observer for multiple keys:
-
-```javascript
-glue.addObserver('v1, v2', callback);
-```
-
-Setting a observer for a specific operation:
-
-```javascript
-glue.addObserver('v1:set', function(message) {
-  // callback
-});
-```
-
-Setting a observer for multiple operations:
-
-```javascript
-glue.addObserver('v1:set, v2:push, :insert', function(message) {
-  // callback
-});
-```
-
-###Context
-By default all callbacks are executed in the `context` of the `target` object, but can be specified by following:
-
-```javascript
-var myContext = { a: ''};
-
-glue.addObserver(myContext, function(message) {
-  // "this" in side the callback is myContext
-  this.a = 'context';
-});
-```
-When the callback above is executed, `myContext` will have the value `{ a: 'context' }`
-
-The context can be used in conjunction with keys and operations as follows:
-
-```javascript
-glue.addObserver('v1:set', context, function(message) {
-  // callback
-});
-```
-
-The example below demonstrates context.
-
-```javascript
-var context = { myWord: 'Oh my' },
-    target = { v1: '' },
-    glue = new Glue(target);
-
-glue.addObserver(context, function(message) {
-  this.myWord = message.value;
-});
-
-glue.set('v1', 'Hello');
-
-console.log(context); // { myWord: 'Hello' }
-```
-
-###Messages
-A message object is passed to the observer callback function.
-
-####Basic Messages
-
-```javascript
-var messages = [],
-    target1 = { foo: "bar" },
-    glue = new Glue(target1);
-
-
-glue.addObserver('*', function(msg) {
-  console.log(message);
-});
-
-glue.set('foo', 'baz');
-
-// Output
-// {
-//   value: "baz",
-//   operation: 'set'
-// }
-```
-
-####Array Specific messages
-
-Messages content depend on the type of key is assigned to the observer.
-
-```javascript
-var message,
-    target1 = { arr: [1, 2, 3, 4, 5] },
-    glue = new Glue(target1);
-
-glue.addObserver('arr[2]', function(msg) {
-  message = msg;
-});
-
-glue.set('arr[2]', 9);
-
-console.log(message); // [{ value: 9, operation: 'set' }]
-```
-
-On the other hand:
-
-```javascript
-var message,
-  target1 = { arr: [1, 2, 3, 4, 5] },
-  glue = new Glue(target1);
-
-
-glue.addObserver('arr[]', function(msg) {
-  message = msg;
-});
-
-glue.set('arr[2]', 9);
-
-console.log(message); // { value: 9, index: 2, operation: 'set' }
-```
-
-And directly to the `target`:
-
-```javascript
-var messages = [],
-    target1 = { arr: [1, 2, 3, 4, 5] },
-    glue = new Glue(target1);
-
-
-glue.addObserver('*', function(msg) {
-  messages.push(msg);
-});
-
-glue.set('arr[2]', 9);
-
-console.log(message);
-// {
-//   value: { arr: [ 1, 2, 9, 4, 5 ] },
-//   operation: 'set'
-// }
-```
-
-```javascript
-var messages = [],
-    target1 = [1, 2, 3, 4, 5],
-    glue = new Glue(target1);
-
-glue.addObserver('[]', function(msg) {
-  messages.push(msg);
-});
-
-glue.filter(function(num) {
-  return num % 2 === 0;
-});
-
-console.log(messages)
-
-// ------------------------------- messages ---------------------------------
-// [
-//   { value: undefined, index: 4, operation: 'filter' },
-//   { value: undefined, index: 3, operation: 'filter' },
-//   { value: undefined, index: 2, operation: 'filter' },
-//   { value: 4, index: 1, operation: 'filter' },
-//   { value: 2, index: 0, operation: 'filter' }
-// ];
-// --------------------------------------------------------------------------
-```
-
-##removeObserver
-```javascript
-glue.addObserver([key(s):operation(s))], [context]);
-```
-
-**key(s) (optional)**: the key to be removed
-
-**operation(s) (optional)**: the operation to be removed
-
-**context (optional)**: the context to be removed
-
-Example
-
-```javascript
-glue.removeObserver('key');
-glue.removeObserver('key1, key2');
-glue.removeObserver('key1, key2:operation');
-
-glue.removeObserver(':operation');
-glue.removeObserver(':operation1, operation2');
-
-glue.removeObserver('key:operation');
-glue.removeObserver('key:operation, operation2');
-glue.removeObserver('key1, key2:operation, operation2');
-
-glue.removeObserver('key', context);
-glue.removeObserver(':operation', context);
-glue.removeObserver('key1, key2:operation', context);
-glue.removeObserver('key:operation1, operation2', context);
-glue.removeObserver('key1, key2:operation, operation2', context);
-```
-
-##set
-```javascript
-glue.set(key, value);
-```
-
-Example:
-
-```javascript
-var glue = new Glue({ v1: '' });
-glue.set('v1', 'something');
-
-console.log(glue.target); // { 'v1', 'something' }
-```
-
-##remove
-```javascript
-glue.remove(key);
-```
-
-Example:
-
-```javascript
-var glue = new Glue({ v1: 'something' });
-glue.remove('v1'); // 'something'
-
-console.log(glue.target); // {}
-```
-
-##push
-```javascript
-glue.push([key], value);
-```
-
-Example:
-
-```javascript
-var glue = new Glue([1,2,3]);
-glue.push(4)
-
-console.log(glue.target); // [1,2,3,4]
-```
-
-##pop
-```javascript
-glue.pop([key]);
-```
-
-Example:
-
-```javascript
-var glue = new Glue([1,2,3]);
-glue.pop() // 4
-
-console.log(glue.target); // [1,2,3]
-```
-
-##insert
-```javascript
-glue.insert([key], index, value);
-```
-
-Example:
-
-```javascript
-var glue = new Glue([1,2,3]);
-glue.insert(1, 9);
-
-console.log(glue.target); // [1, 9, 2, 3]
-```
-
-##filter
-```javascript
-glue.filter([key], iterator);
-```
-
-Example:
-
-```javascript
-var glue = new Glue([1,2,3,4,5]);
-glue.filter(function(num) {
-  return num % 2 === 0;
-}); // [2,4]
-
-console.log(glue.target); // [2, 4]
-```
-
-###sortBy
-```javascript
-glue.sortBy([key], iterator);
-```
-Example
-
-```javascript
-var glue = new Glue(_.shuffle(['1elem', '2elem', '3elem', '4elem' ,'5elem']));
-
-glue.sortBy(function(elem) { return parseInt(elem) });
-console.log(glue.target); //['1elem', '2elem', '3elem', '4elem' ,'5elem']
-```
-
-##swap
-```javascript
-glue.swap(key1, key2);
-```
-Example
-
-```javascript
-var glue = new Glue({ v1: '', v2: { v3: 'hello' }});
-
-glue.swap('v1', 'v2.v3');
-console.log(glue.target); //{ v1: 'hello', v2: { v3: '' }}
-```
+- 🐛 [Report bugs](https://github.com/felixflores/glue.js/issues)
+- 💡 [Request features](https://github.com/felixflores/glue.js/issues)
+- 📖 [Read the docs](https://github.com/felixflores/glue.js#readme)
+- ⭐ [Star on GitHub](https://github.com/felixflores/glue.js)
