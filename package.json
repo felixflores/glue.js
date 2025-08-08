@@ -1,5 +1,5 @@
 {
-  "name": "glue.js",
+  "name": "@felixflores/glue.js",
   "version": "0.6.0",
   "description": "Reactive data made simple. Natural JavaScript syntax with automatic observer notifications - like Excel for your app's data.",
   "main": "index.js",
