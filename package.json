@@ -1,8 +1,8 @@
 {
   "name": "glue.js",
-  "version": "0.6.0-alpha",
-  "description": "Key-value observing library for JavaScript",
-  "main": "lib/glue.js",
+  "version": "0.6.0",
+  "description": "Reactive data made simple. Natural JavaScript syntax with automatic observer notifications - like Excel for your app's data.",
+  "main": "index.js",
   "type": "commonjs",
   "scripts": {
     "test": "vitest",
@@ -16,11 +16,20 @@
     "url": "git+https://github.com/felixflores/glue.js.git"
   },
   "keywords": [
+    "reactive",
     "observer",
+    "proxy",
+    "natural-syntax",
     "kvo",
     "key-value",
     "observing",
-    "reactive"
+    "data-binding",
+    "state-management",
+    "javascript",
+    "reactivity",
+    "modern",
+    "automatic",
+    "no-framework"
   ],
   "author": "Felix Flores <felixflores@gmail.com> (Original: EdgeCase)",
   "license": "MIT",

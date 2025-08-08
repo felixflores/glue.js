@@ -1,0 +1,33 @@
+# Development files
+test/
+spec/
+docs/
+.github/
+.claude/
+prompt/
+
+# Development scripts
+benchmark.js
+quick-bench.js
+test-new-api.js
+vitest.config.js
+
+# Documentation files (keep README.md)
+CLAUDE.md
+UNDERSCORE_MIGRATION.md
+
+# Node modules and locks
+node_modules/
+package-lock.json
+
+# Git files
+.git/
+.gitignore
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
