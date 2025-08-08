@@ -22,7 +22,7 @@
     "observing",
     "reactive"
   ],
-  "author": "EdgeCase",
+  "author": "Felix Flores <felixflores@gmail.com> (Original: EdgeCase)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/felixflores/glue.js/issues"
