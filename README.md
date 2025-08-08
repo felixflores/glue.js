@@ -1,11 +1,11 @@
 # glue.js
 
 [![CI](https://github.com/felixflores/glue.js/actions/workflows/ci.yml/badge.svg)](https://github.com/felixflores/glue.js/actions/workflows/ci.yml)
-[![npm version](https://badge.fury.io/js/glue.js.svg)](https://badge.fury.io/js/glue.js)
+[![npm version](https://badge.fury.io/js/@felixflores%2Fglue.js.svg)](https://badge.fury.io/js/@felixflores%2Fglue.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Coverage Status](https://codecov.io/gh/felixflores/glue.js/branch/master/graph/badge.svg)](https://codecov.io/gh/felixflores/glue.js)
 [![Node.js Version](https://img.shields.io/node/v/glue.js.svg)](https://nodejs.org)
-[![npm downloads](https://img.shields.io/npm/dm/glue.js.svg)](https://www.npmjs.com/package/glue.js)
+[![npm downloads](https://img.shields.io/npm/dm/@felixflores/glue.js.svg)](https://www.npmjs.com/package/@felixflores/glue.js)
 
 > 🎉 **NEW in v0.6.0:** Natural JavaScript syntax! No more `.set()` and `.get()` - just write normal JavaScript and watch the magic happen. **[See what's new →](#-modern-javascript-syntax)**
 
@@ -128,11 +128,11 @@ game.addObserver('players', () => {
 ## 🚀 Get Started (30 seconds)
 
 ```bash
-npm install glue.js
+npm install @felixflores/glue.js
 ```
 
 ```javascript
-const Glue = require('glue.js');
+const Glue = require('@felixflores/glue.js');
 
 const data = new Glue({ count: 0, doubled: 0 });
 
