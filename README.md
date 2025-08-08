@@ -37,7 +37,7 @@
 - 🎯 **Granular Control** - Observe specific properties, arrays, or entire objects
 - 🔄 **Operation Filtering** - Listen only to specific operations (set, push, pop, etc.)
 - 🎨 **Flexible Context Binding** - Execute callbacks in custom contexts
-- 📦 **Lightweight** - Minimal dependencies, just Underscore.js
+- 📦 **Lightweight** - Zero runtime dependencies
 - ⚡ **Chainable API** - All methods return `this` for method chaining
 
 ## Installation
@@ -49,7 +49,6 @@ npm install glue.js
 Or include directly in your HTML:
 
 ```html
-<script src="path/to/underscore.js"></script>
 <script src="path/to/glue.js"></script>
 ```
 
@@ -455,6 +454,14 @@ npm run test:watch
 # Run tests with UI
 npm run test:ui
 ```
+
+## Changelog
+
+### v0.6.0-alpha
+- **Breaking**: Removed Underscore.js dependency - now zero runtime dependencies!
+- Implemented native JavaScript utilities for better performance
+- Maintained 100% backward compatibility with existing API
+- Improved sparse array handling in filter operations
 
 ## License
 

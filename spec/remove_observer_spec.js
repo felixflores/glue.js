@@ -1,5 +1,4 @@
 var vows = require('vows')
-,   _ = require('underscore')
 ,   assert = require('assert')
 ,   Glue   = require(__dirname + "/../lib/glue")
 
@@ -24,9 +23,13 @@ var vows = require('vows')
 // glue.removeObserver(arr, obj)
 // glue.removeObserver(arr:pop, obj)
 var numberOfListeners = function(glue) {
-  return _.reduce(glue.listeners, function(memo, listenerSet) {
-    return memo + listenerSet.length;
-  }, 0);
+  var count = 0;
+  for (var type in glue.listeners) {
+    for (var key in glue.listeners[type]) {
+      count += glue.listeners[type][key].length;
+    }
+  }
+  return count;
 };
 
 suite.addBatch({

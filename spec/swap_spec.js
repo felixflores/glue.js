@@ -1,5 +1,4 @@
 var vows   = require('vows')
-,   _      = require('underscore')
 ,   assert = require('assert')
 ,   Glue   = require(__dirname + "/../lib/glue");
 
