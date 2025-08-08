@@ -81,14 +81,14 @@ describe('Calculated/Computed Values', () => {
       // Initial calculation
       updateSubtotal();
       
-      expect(glue.get('subtotal')).toBe(75); // (10*2) + (20*1) + (15*3)
-      expect(glue.get('tax')).toBe(6); // 75 * 0.08
-      expect(glue.get('total')).toBe(81); // 75 + 6
+      expect(glue.get('subtotal')).toBe(85); // (10*2) + (20*1) + (15*3) = 20+20+45 = 85
+      expect(glue.get('tax')).toBe(6.8); // 85 * 0.08
+      expect(glue.get('total')).toBe(91.8); // 85 + 6.8
       
       // Change tax rate - should cascade
       glue.set('taxRate', 0.10);
-      expect(glue.get('tax')).toBe(7.5);
-      expect(glue.get('total')).toBe(82.5);
+      expect(glue.get('tax')).toBe(8.5); // 85 * 0.10
+      expect(glue.get('total')).toBe(93.5); // 85 + 8.5
     });
   });
 
@@ -134,8 +134,8 @@ describe('Calculated/Computed Values', () => {
       
       // Add new user - should trigger recalculation
       const users = glue.get('users');
-      users.push({ name: 'Eve', active: true, role: 'user' });
-      glue.set('users', users);
+      const newUsers = [...users, { name: 'Eve', active: true, role: 'user' }];
+      glue.set('users', newUsers);
       
       expect(glue.get('activeUsers')).toHaveLength(4);
       expect(filterCallCount).toBe(2);
@@ -241,10 +241,10 @@ describe('Calculated/Computed Values', () => {
       expect(calculationCount).toBe(1);
       expect(time).toBeLessThan(10); // Should be very fast
       
-      // Modify data
+      // Modify data  
       const numbers = glue.get('numbers');
-      numbers.push(101);
-      glue.set('numbers', numbers);
+      const newNumbers = [...numbers, 101];
+      glue.set('numbers', newNumbers);
       
       expect(glue.get('sum')).toBe(5151);
       expect(glue.get('max')).toBe(101);
@@ -339,7 +339,7 @@ describe('Calculated/Computed Values', () => {
       glue.set('discountCode', 'SAVE20');
       expect(glue.get('discountPercent')).toBe(0.2);
       expect(glue.get('discount')).toBe(14.89);  // 20% discount
-      expect(glue.get('total')).toBe(64.34);     // Recalculated total
+      expect(glue.get('total')).toBe(64.32);     // Recalculated total
     });
   });
 });

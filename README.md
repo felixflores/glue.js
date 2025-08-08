@@ -7,6 +7,8 @@
 [![Node.js Version](https://img.shields.io/node/v/glue.js.svg)](https://nodejs.org)
 [![npm downloads](https://img.shields.io/npm/dm/glue.js.svg)](https://www.npmjs.com/package/glue.js)
 
+> 🎉 **NEW in v0.6.0:** Natural JavaScript syntax! No more `.set()` and `.get()` - just write normal JavaScript and watch the magic happen. **[See what's new →](#-modern-javascript-syntax)**
+
 # Make your data reactive like magic ✨
 
 **What if changing one value in your JavaScript object automatically updated everything that depends on it?**
@@ -15,20 +17,18 @@ Like Excel, but for your app's data. No frameworks, no build tools, no configura
 
 ```javascript
 // Your shopping cart updates itself automatically
-const cart = { items: [], total: 0 };
-const glue = new Glue(cart);
+const cart = new Glue({ items: [], total: 0 });
 
 // When items change, total recalculates instantly
-glue.addObserver('items', () => {
-  const total = glue.get('items').reduce((sum, item) => sum + item.price, 0);
-  glue.set('total', total);
+cart.addObserver('items', () => {
+  cart.total = cart.items.reduce((sum, item) => sum + item.price, 0);
 });
 
-glue.push('items', { name: 'Coffee', price: 5 });
-console.log(glue.get('total')); // 5 - calculated automatically!
+cart.items.push({ name: 'Coffee', price: 5 });
+console.log(cart.total); // 5 - calculated automatically!
 ```
 
-**That's it.** No reducers, no state management, no complex setup. Just reactive data that works.
+**That's it.** Just **normal JavaScript**. No `.set()`, no `.push()`, no learning curve. Just reactive data that works like magic.
 
 ## 🤯 Why would I want this?
 
@@ -67,7 +67,7 @@ cart.addObserver('subtotal', updateTotal);
 cart.addObserver('tax', updateTotal);
 
 // Now just change data - everything else happens automatically
-cart.push('items', { name: 'iPhone', price: 999 });
+cart.items.push({ name: 'iPhone', price: 999 });
 // ✨ Subtotal, tax, and total all update instantly
 ```
 
@@ -78,11 +78,10 @@ cart.push('items', { name: 'iPhone', price: 999 });
 const form = new Glue({ email: '', password: '', errors: {} });
 
 form.addObserver('email', () => {
-  const email = form.get('email');
-  if (!email.includes('@')) {
-    form.set('errors.email', 'Please enter a valid email');
+  if (!form.email.includes('@')) {
+    form.errors.email = 'Please enter a valid email';
   } else {
-    form.remove('errors.email');
+    delete form.errors.email;
   }
 });
 
@@ -101,10 +100,9 @@ const dashboard = new Glue({
 
 // When users change, everything updates
 dashboard.addObserver('users', () => {
-  const users = dashboard.get('users');
-  dashboard.set('activeUsers', users.filter(u => u.active).length);
-  dashboard.set('revenue', users.reduce((sum, u) => sum + u.spent, 0));
-  dashboard.set('conversionRate', dashboard.get('activeUsers') / users.length);
+  dashboard.activeUsers = dashboard.users.filter(u => u.active).length;
+  dashboard.revenue = dashboard.users.reduce((sum, u) => sum + u.spent, 0);
+  dashboard.conversionRate = dashboard.activeUsers / dashboard.users.length;
 });
 
 // Add a user → all metrics update automatically
@@ -119,10 +117,9 @@ const game = new Glue({
 });
 
 game.addObserver('players', () => {
-  const players = game.get('players');
-  const sorted = players.sort((a, b) => b.score - a.score);
-  game.set('topPlayer', sorted[0]);
-  game.set('averageScore', players.reduce((sum, p) => sum + p.score, 0) / players.length);
+  const sorted = game.players.sort((a, b) => b.score - a.score);
+  game.topPlayer = sorted[0];
+  game.averageScore = game.players.reduce((sum, p) => sum + p.score, 0) / game.players.length;
 });
 
 // Player scores change → leaderboard updates instantly
@@ -141,22 +138,65 @@ const data = new Glue({ count: 0, doubled: 0 });
 
 // When count changes, doubled updates automatically
 data.addObserver('count', () => {
-  data.set('doubled', data.get('count') * 2);
+  data.doubled = data.count * 2;
 });
 
-data.set('count', 5);
-console.log(data.get('doubled')); // 10 ✨
+data.count = 5;
+console.log(data.doubled); // 10 ✨
 ```
 
 **That's literally it.** No webpack, no babel, no configuration. Just reactive data.
 
+## 🔥 Modern JavaScript Syntax
+
+glue.js now uses **natural JavaScript syntax** that feels like native language features:
+
+```javascript
+// ✨ Modern (v0.6.0+): Just write normal JavaScript
+const data = new Glue({ user: { name: 'Alice', age: 25 } });
+
+data.user.name = 'Bob';        // ← Triggers observers automatically
+data.user.age += 1;            // ← So does this
+data.items.push(newItem);      // ← And this
+delete data.user.oldProp;      // ← Even this!
+```
+
+```javascript
+// 📜 Legacy (still works): Traditional API  
+data.set('user.name', 'Bob');
+data.set('user.age', data.get('user.age') + 1);
+data.push('items', newItem);
+data.remove('user.oldProp');
+```
+
+**How it works:** glue.js automatically detects modern JavaScript environments and uses [Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) to intercept property changes. In older environments, it gracefully falls back to traditional methods.
+
+**Best part:** Your code is **100% backward compatible**. Existing apps keep working, but you can start using the natural syntax immediately.
+
+### The Transformation 
+**Before v0.6.0** - Had to use manipulator functions:
+```javascript
+dashboard.set('activeUsers', users.filter(u => u.active).length);
+dashboard.set('revenue', calculateRevenue(dashboard.get('users')));
+```
+
+**After v0.6.0** - Just write JavaScript:
+```javascript  
+dashboard.activeUsers = users.filter(u => u.active).length;
+dashboard.revenue = calculateRevenue(dashboard.users);
+```
+
+Same powerful reactivity, zero learning curve. 🎯
+
 ## 🎯 Why glue.js wins
 
-- **Zero dependencies** - No bloat, no security vulnerabilities, no version conflicts
-- **Tiny footprint** - Less than 10KB, works everywhere (even IE11)
-- **Zero configuration** - No build tools, no setup, no framework lock-in
-- **Actually simple** - If you understand `addEventListener`, you understand glue.js
-- **Production proven** - Running in production apps for over a decade
+- **🎯 Natural JavaScript syntax** - Just `obj.prop = value`, no learning curve
+- **🔄 Automatic fallback** - Uses modern Proxies when available, traditional methods otherwise  
+- **📦 Zero dependencies** - No bloat, no security vulnerabilities, no version conflicts
+- **⚡ Tiny footprint** - Less than 10KB, works everywhere (even IE11)
+- **🛠️ Zero configuration** - No build tools, no setup, no framework lock-in
+- **🧠 Actually simple** - If you understand `addEventListener`, you understand glue.js
+- **🏭 Production proven** - Running in production apps for over a decade
 
 ## 🧠 When to use it
 
